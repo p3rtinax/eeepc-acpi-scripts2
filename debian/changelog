@@ -1,0 +1,458 @@
+eeepc-acpi-scripts (1.1.12) unstable; urgency=low
+
+  [ Ben Armstrong ]
+  * Allow wireless toggle to be configured independently of kernel version,
+    but with the documented caveat that it is still intended for use with
+    older kernels without rfkill input.
+  * Document acpi_fakekey alternative key handlers to provide input events
+    for keys not handled by the current kernel driver.
+
+  [ Luca Niccoli ]
+  * Fix DBus notifications.
+  * Notify WiFi toggling.
+  * Wrap around button events if eeepc_wmi is loaded.
+  * Check if acpid can be restarted before doing it at purge time.
+    Closes: #616542
+
+  [ Damyan Ivanov ]
+  * assume 3.x kernel is 2.6.36 (Closes: #640830)
+  * remove myself from Uploaders
+
+  [ Raphael Geissert ]
+  * Transition to /run (Closes: #633050)
+  * Add build-{arch,indep} targets
+  * Bump standards version, no changes needed
+
+ -- Raphael Geissert <geissert@debian.org>  Sun, 02 Oct 2011 21:51:46 -0500
+
+eeepc-acpi-scripts (1.1.11) unstable; urgency=low
+
+  [ Damyan Ivanov ]
+  * notify: avoid staircase effect when sending notifications to the console.
+    Thanks to Trent W. Buck for reporting and testing.
+
+  [ Darren Salt ]
+  * Blacklist snd_pcsp.
+
+  [ Ben Armstrong ]
+  * Set S.H.E. at boot in background to prevent hang on some models when
+    on battery (e.g. 1001PX).
+
+  [ Luca Niccoli]
+  * Stop conflicting with acpi-support, start depending on it.
+  * Do not handle things that are already handled by acpi-support.
+  * Turn off volume handling by default - most desktop environment already
+    do it.
+  * Drop aosd; use libnotify instead.
+  * Listen only to netlink events and drop duplicate event logic. Depend on
+    acpid >= 2.0.0-1 since very old versions don't support netlink.
+
+ -- Ben Armstrong <synrg@sanctuary.nslug.ns.ca>  Fri, 12 Nov 2010 07:44:16 -0400
+
+eeepc-acpi-scripts (1.1.10) unstable; urgency=low
+
+  * Fn-Space and the S.H.E. button are the same, and only generate a hotkey
+    event. Ensure that this isn't ignored. (Closes: #566707)
+  * Bump standards version to 3.8.4; no changes needed.
+
+ -- Darren Salt <linux@youmustbejoking.demon.co.uk>  Thu, 25 Feb 2010 15:11:25 +0000
+
+eeepc-acpi-scripts (1.1.9) unstable; urgency=low
+
+  * suspend.sh: fix the check for a running /sbin/shutdown
+    Thanks to Darren Salt.
+
+ -- Damyan Ivanov <dmn@debian.org>  Wed, 27 Jan 2010 07:43:57 +0200
+
+eeepc-acpi-scripts (1.1.8) unstable; urgency=low
+
+  [ Darren Salt ]
+  * Don't fail on upgrade, removal etc. if the acpid init script is missing.
+  * Simplify rfkill handling. (Requires rfkill 0.3-3.)
+
+  [ Damyan Ivanov ]
+  * wireless.sh/disable: do not fail if no interface can be brought down
+  * add ${misc:Depends} to dependencies
+  * suspend.sh: when checking for a running shutdown, check only for processes
+    owned by root. Closes: #565855
+    Thanks to Daniel Kahn Gillmor for reporting.
+
+ -- Damyan Ivanov <dmn@debian.org>  Tue, 26 Jan 2010 21:19:50 +0200
+
+eeepc-acpi-scripts (1.1.7) unstable; urgency=low
+
+  [ Damyan Ivanov ]
+  * add a hook in /etc/pm/sleep.d that switches off wlan on suspend on models
+    using RT2860
+  * wireless.sh: deconfigure wlan0 and remove the rt2860sta module before
+    switching off the hardware
+  * lid.sh/sleep.sh: remove checks for running powersaved. The checks can be
+    faked and powersaved was dropped from Debian. Partly addresses #565855.
+
+  [ Darren Salt ]
+  * rfkill-input isn't present in kernel ≥ 2.6.31, so don't try loading it.
+  * Abstract out rfkill setting & getting.
+  * Use (and depend on) rfkill, but fall back if /dev/rfkill isn't present.
+
+ -- Darren Salt <linux@youmustbejoking.demon.co.uk>  Sat, 23 Jan 2010 03:14:54 +0000
+
+eeepc-acpi-scripts (1.1.6) unstable; urgency=low
+
+  * Add support for ACPI button/* and video/* events. (Closes: #562166)
+    - It is possible that only these will be reported, but it is also
+      possible that both these and hotkey events will be reported; and there
+      are keys for which only hotkey events are reported (it is expected
+      that this will change).
+    - This is incomplete: no known button or video events for Fn-F3 & Fn-F7.
+    - There is one button/* event which is reported for two different keys,
+      fortunately on different models. Disambiguation is done via the
+      product name (requires DMI support, which is normally enabled).
+  * Add support for the S.H.E. button on some models, e.g. 1002HA.
+    - This is incomplete: no known button event.
+  * Have the audio keys affect the 'Master' mixer control by default. This
+    has a side effect: the 'Beep' control is effectively muted when 'Master'
+    is muted.
+  * Fix bugs which prevent touchpad toggling from working (synclient has
+    lost -s at some point), and don't report anything if toggling failed.
+
+ -- Darren Salt <linux@youmustbejoking.demon.co.uk>  Fri, 01 Jan 2010 20:05:10 +0000
+
+eeepc-acpi-scripts (1.1.5) unstable; urgency=high
+
+  [ Darren Salt ]
+  * Fix Super Hybrid Engine support breakage in 1.1.4.
+    A missing "[" caused the AC-adaptor-unplugged code to fail; consequently,
+    the preferred running-on-battery mode (the default being underclocked)
+    would not be selected.
+  * Set urgency=high (for documentation reasons; due to 1.1.4).
+  * Add myself to Uploaders.
+
+  [ Damyan Ivanov ]
+  * add DMUA flag
+  * rules: add small test suite for all shell scripts
+
+ -- Damyan Ivanov <dmn@debian.org>  Fri, 18 Dec 2009 07:38:14 +0200
+
+eeepc-acpi-scripts (1.1.4) unstable; urgency=low
+
+  * rules: when stripping comments from /etc/default/eeepc-acpi-scripts, also
+    remove lines consisting solely of '#'
+  * when changing Super Hybrid Engine modes, ignore models 701 and 702 which
+    don't officially support S.H.E. (Closes: #559578)
+    Additionally provide a variable in the default file to override the ignore
+
+ -- Damyan Ivanov <dmn@debian.org>  Wed, 16 Dec 2009 22:56:18 +0200
+
+eeepc-acpi-scripts (1.1.3) unstable; urgency=low
+
+  [ Darren Salt ]
+  * Init script fixups for when /etc/default/eeepc-acpi-scripts is missing;
+    ensure that we default to "automatic" for our S.H.E. handling. 
+  * Belatedly bump acpid version requirement. (Closes: #550119)
+  * Bring the copyright file up to date.
+  * Allow setting of whether the super hybrid engine control defaults to
+    manual or auto.
+  * Strip out comments from /etc/default/eeepc-acpi-scripts and store a
+    fully-commented copy in /usr/share/doc/eeepc-acpi-scripts/examples/.
+  * Add configuration support for Fn-F4 on 10" models. No action is defined.
+  * Make VGA toggling into a bindable function.
+  * Fix a bug which prevented touchpad toggling from working properly.
+
+  [ Damyan Ivanov ]
+  * rules: call dh_installinit with -u'start 20 S .' to prevent
+    installing stop init.d symlinks as eeepc-acpi-scripts init.d script
+    doesn't need to be run during system shutdown
+  * postinst: remove and re-install rc.d configuration
+    fixing insserv warning about discrepancy between LSB init.d headers and
+    the real situation. Thanks to Paul Menzel for reporting and Raphael
+    Geissert for the fix.
+  * hotkey.sh/wireless.sh/functions.sh: wake up wicd on switching WiFi on
+  * Standards-Version: 3.8.3 (no changes necessary)
+
+  [ Andreas Schreiner ]
+  * Fix WLAN toggle using fn-F2 on EeePC 900A. This EeePC model needs to
+    load the pciehp kernel module with the pciehp_force=1 option up to kernel
+    version 2.6.32. /etc/init.d/eeepc-acpi-script now checks if it is running
+    on a 900A and loads the module accordingly.
+
+ -- Damyan Ivanov <dmn@debian.org>  Thu, 03 Dec 2009 20:53:05 +0200
+
+eeepc-acpi-scripts (1.1.2) unstable; urgency=low
+
+  [ Darren Salt ]
+  * Add support for the 'super hybrid engine', which is accessible in kernel
+    2.6.30-rc7 and later, and allow for automatic upclocking when on AC and
+    downclocking when on battery (default is fastest/slowest).
+  * Add an option for preferring to use the 'Master' control for volume
+    control & muting. Off by default; normally takes effect while booting.
+  * Don't run the init script on installation or upgrade; just while
+    booting. This avoids altering current settings.
+  * Make touchpad toggling into a bindable function.
+  * Blacklist i2c_i801 (not needed, causes a long boot delay).
+
+  [ Thiemo Nagel ]
+  * Add support for GSM (3G) toggling, automatically chosing between rfkill
+    and USB methods.
+  * spelling fix in the default file
+  * fix actions/wireless.sh usage message
+
+  [ Damyan Ivanov ]
+  * functions.sh: run screensaver-command as the logged in user
+
+  [ Alan Jenkins ]
+  * Remove old hacks for wireless toggle key
+    There is no need to load/unload modules and ifconfig up/down the wireless
+    interface. PCI hotplug takes care of it.
+
+ -- Damyan Ivanov <dmn@debian.org>  Fri, 14 Aug 2009 14:52:18 +0300
+
+eeepc-acpi-scripts (1.1.1) unstable; urgency=low
+
+  [ Darren Salt ]
+  * Add support for Fn-F7 (on 10xx models). Default is screen blanking.
+    Add support for Fn-F3 (touchpad toggle on 10xx models).
+    (Closes: #528759)
+  * Rearrange hotkey handling a bit (no functional changes), fix comments
+    and document keys for which we don't yet have event codes.
+  * Configuration settings FnF6, FnF7, FnF8 and FnF9 are renamed to reflect
+    function rather than location.
+    (We've had one instance of renaming to reflect location on a 1000-series
+    without corresponding fixes in the hotkey handler script.)
+  * Alter the audio control blacklisting to allow for controls for which
+    (for example) muting only should be allowed.
+  * Add "Beep" to the audio control blacklist, but only for volume control.
+  * Make sure that, if some controls is unmuted due to volume level change,
+    all other relevant controls are unmuted.
+  * Fix a bashism in debian/rules.
+
+  [ Raphael Geissert ]
+  * Allow fine-grained control over the lid-closing action.
+  * Make init script depend on $remote_fs, we use /usr
+  * Add support for OSD notifications via kdialog (Closes: #519671)
+    - Thanks to Gernot Pansy <pansyg@gmx.at> for the patch
+  * Bump standards-version, no change needed
+  * Simplify rules file
+  * Use su instead of sudo to avoid another dependency
+  * Add myself to uploaders
+
+  [ Tanguy Ortolo ]
+  * Fix "[ -e $foo ]" where foo may be empty. (Closes: #532631)
+
+  [ Santi Béjar]
+  * Add support for KMS in vga-toggle: when KMS (kernel mode setting) is
+    used the output names have a number in the end (VGA1 and LVDS1).
+
+ -- Raphael Geissert <geissert@debian.org>  Thu, 09 Jul 2009 14:19:45 -0500
+
+eeepc-acpi-scripts (1.1.0) unstable; urgency=low
+
+  [ Darren Salt ]
+  * Detect who's running an X session by looking for a controlling process
+    with DISPLAY set in its environment.
+    This has a useful side effect: status changes can be displayed even when
+    the controlling process is a login manager.
+  * Try to use rfkill when toggling wireless & bluetooth.
+  * Ignore events when shutting down or rebooting.
+  * Give immediate indication of pressing of Fn-F2.
+  * The same ACPI key codes may be used for wireless on as well as off.
+  * Allow reporting via OSD of brightness changes. (Closes: #501577)
+  * Tweaked notifications a bit:
+    - Replaced the heuristic for determining which should be fast
+      notifications with an extra parameter.
+    - Fast notifications stay around for a bit longer.
+  * Made the volume stepping configurable, and set the default to 3.125%
+    (which is 2dB for LineOut on at least ALC269 and ALC662).
+  * Blacklist some ALSA volume controls; we want to alter only one of them.
+    (Tested on ALC269 (901) and ALC662 (701).)
+  * Cache audio control names etc. to avoid need to detect them every time
+    the volume level is changed.
+  * Enable audio power saving, defaulting to a 5-second delay before
+    powering down. (snd_hda_intel power_save in /etc/modprobe.d/eeepc)
+  * When locking the display, if all else fails, try xtrlock.
+  * Prepare for netlink-enabled acpid: ignore lid-open events and handle
+    differently-reported hotkey events.
+  * Use an init script to load pciehp (if needed) and rfkill-input (if
+    available; we rely on it if the kernel is 2.6.29 or newer).
+
+  [ Raphael Geissert ]
+  * Auto detect the playback devices and the playback switches
+    Closes: #513552 -- Please auto detect the sound devices
+
+  [ Ben Armstrong ]
+  * Support ath5k wifi toggling and default to using it if ath_pci is not
+    present.
+  * Fix detection of rfkill on systems that don't have it.
+
+  [ Damyan Ivanov ]
+  * rename etc/modprobe.d/eeepc to eeepc.conf, adapting to modprobe requirement
+    Closes: #518573
+  * Standards-Version: 3.8.1 (no changes needed)
+  * stop saving/restoring brightness on suspend
+
+ -- Damyan Ivanov <dmn@debian.org>  Thu, 09 Apr 2009 12:03:27 +0300
+
+eeepc-acpi-scripts (1.0.11) unstable; urgency=low
+
+  [ Ben Armstrong ]
+  * VGA_ON and LVDS_OFF replace COMBINED_DISPLAY_SWITCHES to provide
+    better default behaviour for VGA toggle.  See comments in
+    /etc/default/eeepc-acpi-scripts for common variations (specify
+    mode or use xinerama-style display).
+  * Blacklist useless pcspkr module.
+  * Fix VGA toggle: default to enable LVDS / disable VGA so that
+    it will work when the external monitor is disconnected.
+
+  [ Damyan Ivanov ]
+  * when "soft-disabling" bluetooth, power down the USB port
+  * improve long description a bit
+
+  [ Raphael Geissert ]
+  * test for OSD_SHOWN before checking for gnome-osd for consistency
+  * add support for knotify but only use it if aosd_cat is not installed
+    Closes: #513551 -- please add support for knotify
+  * fix typo in notify()'s usage message
+  * Add support for different suspend methods, but keep pm-suspend as the
+    default.
+    Closes: #499545 -- Configurable FnF1 key - suspend to ram or hibernate
+
+ -- Damyan Ivanov <dmn@debian.org>  Mon, 02 Feb 2009 17:39:10 +0200
+
+eeepc-acpi-scripts (1.0.10) unstable; urgency=low
+
+  * add missing "--user $user" to dcop invocation.
+    really closes: #499544
+
+ -- Damyan Ivanov <dmn@debian.org>  Tue, 21 Oct 2008 22:44:32 +0300
+
+eeepc-acpi-scripts (1.0.9) unstable; urgency=low
+
+  * make package removal check depend on the functions.sh, not doc dir;
+    streamline loading of functions and default file
+    Closes: #499911 -- Don't test if /usr/share/doc/eeepc-acpi-scripts exist
+  * source reorg.: move files for /etc/ in etc/
+  * add modprobe.d/eeepc file with pciehp options
+    Closes: #501498 -- Fn-F2 turns wireless off, but never back on
+  * add a note in debian/NEWS about the new file in modprobe.d
+
+ -- Damyan Ivanov <dmn@debian.org>  Sat, 11 Oct 2008 19:06:44 +0300
+
+eeepc-acpi-scripts (1.0.8) unstable; urgency=low
+
+  * handle also Fn+F6 (no default binding)
+    Thanks to Jean-Christophe for the suggestion
+  * move screen locking from suspend.sh to a function in functions.sh
+  * lock_x_screen: try locking KDE via dcop; Closes: #499544
+  * vga-toggle.sh: run detect_x_display before xrandr xrandr needs a
+    proper X session available - DISPLAY, XAUTHORITY. Calling
+    display_x_display before xrandr invocation sets these up.
+    Closes: #500191 -- vga-toggle does nothing. Thanks to John Goerzen for
+    reporting.
+
+ -- Damyan Ivanov <dmn@debian.org>  Fri, 26 Sep 2008 07:43:36 +0300
+
+eeepc-acpi-scripts (1.0.7) unstable; urgency=low
+
+  * move notify() to lib/notify.sh
+  * move audio hot key support in actions/volume.sh
+  * improve comments about hotkey customizations
+  * volume hotkeys are configurable now
+  * move alsa-utils from Depends to Recommends
+
+ -- Damyan Ivanov <dmn@debian.org>  Tue, 09 Sep 2008 10:42:44 +0300
+
+eeepc-acpi-scripts (1.0.6) unstable; urgency=low
+
+  * support toggling of internal Bluetooth on models that have it. Bound to
+    soft-button #4 by default
+  * add support for toggling the built-in camera. Bound to soft-button #3 by
+    default
+  * support configurable soft-button actions
+  * add support for turning the screen off, bound to soft-button #1 by default
+  * hotkey.sh, functions.sh: pass notifications to gnome-osd server if that is
+    detected running. Add gnome-osd to Suggests.
+  * wireless.sh: drop unloading and reloading of pciehp module
+  * wireless.sh: unload/load wireless module only for madwifi. ralink dows this
+    via hot-plugging
+  * handle the sleep button in a separate script. makes it possible for the
+    sleep button handling not to interfere with a running power manager
+  * camera/bluetooth: support old control node locations. Now works with both
+    the eeepc-acpi and laptop-eeepc modules
+  * move camera/bluetooth functions in scriptlets in /etc/acpi/lib
+  * hotkey.sh: make notify() accept two arguments as preparation for supporting
+    further notification services that support icons
+
+ -- Damyan Ivanov <dmn@debian.org>  Mon, 08 Sep 2008 17:48:56 +0300
+
+eeepc-acpi-scripts (1.0.5) unstable; urgency=low
+
+  [ Nico Golde ]
+  * Change msttcorefonts font suggestion to ttf-mscorefonts-installer
+    as the package name changed and additionally suggest the ttf-liberation
+    fonts as an alternative (Closes: #490055).
+  * Bump to policy version 3.8.0, no changes needed.
+
+  [ Damyan Ivanov ]
+  * suspend.sh: lock running screensavers on suspend
+    controlled by LOCK_SCREEN_ON_SUSPEND, defaults to 'yes'
+  * add common functions.sh with detect_wlan() in it, used by wireless.sh
+  * rules: simplify a bit using PKG and TMP variables
+  * move X detection to functions.sh/detect_x_display()
+  * detect_x_display: support users using 'startx' after console login
+  * suspend.sh: use detect_x_display for X detection
+  * hotkey.sh: use $WLAN_IF when checking for wireless status
+
+ -- Damyan Ivanov <dmn@debian.org>  Sat, 23 Aug 2008 22:19:08 +0300
+
+eeepc-acpi-scripts (1.0.4) unstable; urgency=low
+
+  * add support for the new locations of wireless and brightness control files
+    for 2.6.26 kernels. Closes: 488412. Thanks to Astrid S. de Wijn.
+
+ -- Damyan Ivanov <dmn@debian.org>  Sun, 29 Jun 2008 18:23:06 +0300
+
+eeepc-acpi-scripts (1.0.3) unstable; urgency=low
+
+  [ Nico Golde]
+  * Add sleep after loading ath_pci to prevent ifconfig failing
+    because the interface is not already up (Closes: #485236).
+
+  [ Ben Armstrong ]
+  * lid.sh, lid: only suspend if a power manager is not present,
+    otherwise let the power manager handle it.
+  * Fix regex for display detection in hotkey.sh.
+
+ -- Nico Golde <nion@debian.org>  Wed, 18 Jun 2008 21:03:34 +0200
+
+eeepc-acpi-scripts (1.0.2) unstable; urgency=low
+
+  * suspend.sh: fix detection of running shutdown.
+    The code in 1.0.1 could wrongly decide that shutdown is running,
+    cancelling the suspend, possibly leading to overheating if one had closed
+    the lid and put the eee in its bag
+  * add myself to Uploaders
+
+ -- Damyan Ivanov <dmn@debian.org>  Sat, 08 Mar 2008 23:19:26 +0200
+
+eeepc-acpi-scripts (1.0.1) unstable; urgency=low
+
+  [ Nico Golde ]
+  * Uncomment show_brightness function in hotkey.sh as it uses a bashism and
+    is not used by any script.
+  * Start aosd_cat in the background and kill aosd_cat before each new call
+    to avoid output that it is lagging behind on long key presses.
+  * Adding Vcs-Browser and Vcs-Git control fields.
+  * Prevent the system to go into suspend after a lid event if a shutdown
+    is in progress (Closes: #469505).
+  * Add basic support for Fn-F5 key (vga toggle).
+
+  [ Damyan Ivanov ]
+  * Make actions do nothing when package is removed
+
+ -- Nico Golde <nion@debian.org>  Sat, 01 Mar 2008 17:11:08 +0100
+
+eeepc-acpi-scripts (1.0) unstable; urgency=low
+
+  * Initial release (Closes: #466544).
+
+ -- Nico Golde <nion@debian.org>  Tue, 19 Feb 2008 14:12:17 +0100
+

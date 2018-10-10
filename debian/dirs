@@ -1,0 +1,8 @@
+etc/default
+etc/acpi/events
+etc/modprobe.d
+etc/pm/power.d
+lib/udev/rules.d
+usr/share/acpi-support/eeepc-acpi-scripts
+usr/share/acpi-support/eeepc-acpi-scripts/lib
+var/lib/eeepc-acpi-scripts

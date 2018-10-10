@@ -1,0 +1,56 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+PKG = eeepc-acpi-scripts
+TMP = $(CURDIR)/debian/$(PKG)
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+	dh_clean
+
+build: build-indep
+build-indep: build-stamp
+build-stamp:
+	for f in `grep -r -E -l '^#! ?/bin/sh' etc lib eeepc-acpi-scripts`; do \
+	    echo "Checking $$f"; \
+	    sh -n $$f; \
+	done
+	touch $@
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+	install -m 0755 eeepc-acpi-scripts/* $(TMP)/usr/share/acpi-support/eeepc-acpi-scripts
+	install -m 0644 acpilib/* $(TMP)/usr/share/acpi-support/eeepc-acpi-scripts/lib
+	install -m 0644 etc/acpi/events/* $(TMP)/etc/acpi/events
+	install -m 0644 etc/acpi/eeepc-amixer-blacklist $(TMP)/etc/acpi
+	install -m 0644 etc/modprobe.d/* $(TMP)/etc/modprobe.d
+	install -m 0755 etc/pm/power.d/* $(TMP)/etc/pm/power.d
+	install -m 0644 lib/udev/rules.d/* $(TMP)/lib/udev/rules.d
+	install -m 0755 lib/udev/[!r]* $(TMP)/lib/udev
+
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	mkdir -p debian/eeepc-acpi-scripts/usr/share/doc/eeepc-acpi-scripts/examples
+	cat debian/eeepc-acpi-scripts.default.doc-head debian/eeepc-acpi-scripts.default.in >debian/eeepc-acpi-scripts/usr/share/doc/eeepc-acpi-scripts/examples/eeepc-acpi-scripts.default
+	(cat debian/eeepc-acpi-scripts.default.etc-head; sed -e '/^# / d; /^$$/ d; /^#$$/ d' debian/eeepc-acpi-scripts.default.in) >debian/eeepc-acpi-scripts/etc/default/eeepc-acpi-scripts
+	dh_installinit --no-start -u'start 20 S .'
+	dh_compress
+	dh_link
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build build-indep build-arch clean binary-indep binary-arch binary install

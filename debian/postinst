@@ -1,0 +1,51 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+    configure)
+        invoke-rc.d --query acpid restart 2>/dev/null && ret = $? || ret=$?
+        case $ret in
+        0|104|105|106)
+            invoke-rc.d acpid restart>/dev/null
+            ;;
+        esac
+
+	# transition to /run
+	if dpkg --compare-versions "$2" le-nl 1.1.11; then
+	    if [ -f /lib/init/rw/eeepc-acpi-scripts.sound ] && [ -d /run/ ]; then
+		mv /lib/init/rw/eeepc-acpi-scripts.sound /run
+	    fi
+	fi
+
+        # move eeepc-amixer-blacklist that could have been left behind
+        # if the user had changed it.
+        if ( dpkg --compare-versions "$2" le "1.1.10" &&
+            [ -e /etc/acpi/lib/eeepc-amixer-blacklist ] ); then
+            mv /etc/acpi/lib/eeepc-amixer-blacklist /etc/acpi/eeepc-amixer-blacklist
+            rmdir /etc/acpi/lib/ || true
+        fi
+        /lib/udev/eeepc-acpi-scripts
+
+        # we no longer configure stop init.d symlinks
+        # but the old ones keep triggering
+        #  insserv: warning: current stop runlevel(s) (0 1 6) of script `eeepc-acpi-scripts' overwrites defaults (empty).
+        if dpkg --compare-versions "$2" lt "1.1.3~"; then
+            echo "Removing stray rc.d stop links"
+            update-rc.d -f eeepc-acpi-scripts remove
+        fi
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0
+

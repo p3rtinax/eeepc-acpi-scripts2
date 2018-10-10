@@ -1,0 +1,25 @@
+Source: eeepc-acpi-scripts
+Section: utils
+Priority: extra
+Maintainer: Debian Eee PC Team <debian-eeepc-devel@lists.alioth.debian.org>
+Uploaders: Ben Armstrong <synrg@sanctuary.nslug.ns.ca>,
+ Nico Golde <nion@debian.org>,
+ Darren Salt <linux@youmustbejoking.demon.co.uk>,
+ Raphael Geissert <geissert@debian.org>
+Build-Depends: debhelper (>= 6)
+Standards-Version: 3.9.2
+Vcs-Git: git://git.debian.org/git/debian-eeepc/eeepc-acpi-scripts.git
+Vcs-Browser: http://git.debian.org/?p=debian-eeepc/eeepc-acpi-scripts.git
+DM-Upload-Allowed: yes
+
+Package: eeepc-acpi-scripts
+Architecture: all
+Depends: acpid (>= 1:2.0.0-1), acpi-support-base, acpi-support,
+ initscripts (>= 2.88dsf-13.3), pm-utils, rfkill (>= 0.3-3),
+ ${misc:Depends}
+Suggests: alsa-utils, libnotify-bin
+Description: Scripts to support suspend and hotkeys on the Asus Eee PC laptop
+ This package adds support to the special features of Asus Eee PC series of
+ laptops. These include sleep (suspend) and hotkeys such as wireless,
+ brightness, mute, volume, video output toggle and the 'soft' keys available in
+ some models.
